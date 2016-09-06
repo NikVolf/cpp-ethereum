@@ -160,7 +160,7 @@ void EthStratumClient::connect_handler(const boost::system::error_code& ec, tcp:
 				p_farm->start("cuda");
 		}
 		std::ostream os(&m_requestBuffer);
-		os << "{\"id\": 1, \"method\": \"mining.subscribe\", \"params\": []}\n";
+		os << "{ \"jsonrpc\": "2.0", \"id\": 1, \"method\": \"mining.subscribe\", \"params\": []}\n";
 
 		
 		async_write(m_socket, m_requestBuffer,
@@ -258,7 +258,7 @@ void EthStratumClient::processReponse(Json::Value& responseObject)
 	case 1:
 		cnote << "Subscribed to stratum server";
 
-		os << "{\"id\": 2, \"method\": \"mining.authorize\", \"params\": [\"" << p_active->user << "\",\"" << p_active->pass << "\"]}\n";
+		os << "{\"jsonrpc\": "2.0", \"id\": 2, \"method\": \"mining.authorize\", \"params\": [\"" << p_active->user << "\",\"" << p_active->pass << "\"]}\n";
 
 		async_write(m_socket, m_requestBuffer,
 			boost::bind(&EthStratumClient::handleResponse, this,
@@ -388,7 +388,7 @@ bool EthStratumClient::submit(EthashProofOfWork::Solution solution) {
 
 	if (EthashAux::eval(tempWork.seedHash, tempWork.headerHash, solution.nonce).value < tempWork.boundary)
 	{
-		string json = "{\"id\": 4, \"method\": \"mining.submit\", \"params\": [\"" + p_active->user + "\",\"" + temp_job + "\",\"0x" + solution.nonce.hex() + "\",\"0x" + tempWork.headerHash.hex() + "\",\"0x" + solution.mixHash.hex() + "\"]}\n";
+		string json = "{\"jsonrpc\": "2.0", \"id\": 4, \"method\": \"mining.submit\", \"params\": [\"" + p_active->user + "\",\"" + temp_job + "\",\"0x" + solution.nonce.hex() + "\",\"0x" + tempWork.headerHash.hex() + "\",\"0x" + solution.mixHash.hex() + "\"]}\n";
 		std::ostream os(&m_requestBuffer);
 		os << json;
 		m_stale = false;
@@ -399,7 +399,7 @@ bool EthStratumClient::submit(EthashProofOfWork::Solution solution) {
 	}
 	else if (EthashAux::eval(tempPreviousWork.seedHash, tempPreviousWork.headerHash, solution.nonce).value < tempPreviousWork.boundary)
 	{
-		string json = "{\"id\": 4, \"method\": \"mining.submit\", \"params\": [\"" + p_active->user + "\",\"" + temp_previous_job + "\",\"0x" + solution.nonce.hex() + "\",\"0x" + tempPreviousWork.headerHash.hex() + "\",\"0x" + solution.mixHash.hex() + "\"]}\n";
+		string json = "{\"jsonrpc\": "2.0", \"id\": 4, \"method\": \"mining.submit\", \"params\": [\"" + p_active->user + "\",\"" + temp_previous_job + "\",\"0x" + solution.nonce.hex() + "\",\"0x" + tempPreviousWork.headerHash.hex() + "\",\"0x" + solution.mixHash.hex() + "\"]}\n";
 		std::ostream os(&m_requestBuffer);
 		os << json;
 		m_stale = true;
